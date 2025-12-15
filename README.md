@@ -162,7 +162,3 @@ This project is open source and available under the MIT License.
 
 For issues, questions, or suggestions, please open an issue in the repository.
 
----
-
-**Made with ❤️ for seamless language translation**
-"# Language_translator" 
