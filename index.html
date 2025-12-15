@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="description"
+    content="Professional AI-powered language translator with 100+ languages, voice input/output, document translation, and offline support" />
+  <meta name="theme-color" content="#356aff" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="images/icon-192.png" />
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="stylesheet" href="styles/style.css" />
+  <title>AI Language Translator - Professional Translation Tool</title>
+</head>
+
+<body>
+  <!-- Keyboard Shortcuts Help Modal -->
+  <div id="shortcuts-modal" class="modal" role="dialog" aria-labelledby="shortcuts-title" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="shortcuts-title">Keyboard Shortcuts</h2>
+        <button class="modal-close" aria-label="Close shortcuts modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Translate</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>S</kbd> - Swap Languages</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>C</kbd> - Copy Translation</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>D</kbd> - Download</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>H</kbd> - Toggle History</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>F</kbd> - Fullscreen</div>
+        <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>/</kbd> - Show Shortcuts</div>
+        <div class="shortcut-item"><kbd>Esc</kbd> - Close Modals</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Toolbar -->
+  <div class="toolbar" role="toolbar" aria-label="Main toolbar">
+    <button id="memory-btn" class="toolbar-btn" title="Translation Memory" aria-label="Open translation memory">
+      <ion-icon name="library-outline"></ion-icon>
+    </button>
+    <button id="batch-btn" class="toolbar-btn" title="Batch Translation" aria-label="Open batch translation">
+      <ion-icon name="layers-outline"></ion-icon>
+    </button>
+    <button id="comparison-btn" class="toolbar-btn" title="Compare Translations" aria-label="Compare translations">
+      <ion-icon name="git-compare-outline"></ion-icon>
+    </button>
+    <button id="fullscreen-btn" class="toolbar-btn" title="Fullscreen (Ctrl+F)" aria-label="Toggle fullscreen">
+      <ion-icon name="expand-outline"></ion-icon>
+    </button>
+    <button id="history-toggle-btn" class="toolbar-btn" title="History (Ctrl+H)" aria-label="Toggle history panel">
+      <ion-icon name="time-outline"></ion-icon>
+      <span class="badge" id="history-count">0</span>
+    </button>
+    <button id="shortcuts-btn" class="toolbar-btn" title="Shortcuts (Ctrl+/)" aria-label="Show keyboard shortcuts">
+      <ion-icon name="help-circle-outline"></ion-icon>
+    </button>
+    <div class="mode">
+      <label class="toggle" for="dark-mode-btn">
+        <div class="toggle-track">
+          <input type="checkbox" class="toggle-checkbox" id="dark-mode-btn" aria-label="Toggle dark mode" />
+          <span class="toggle-thumb"></span>
+          <img src="images/sun.png" alt="Light mode" />
+          <img src="images/moon.png" alt="Dark mode" />
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Offline Indicator -->
+  <div id="offline-indicator" class="offline-indicator" role="alert" aria-live="polite">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <span>You're offline. Some features may be limited.</span>
+  </div>
+  <div class="container">
+    <!-- Recent Languages Quick Access -->
+    <div class="recent-languages" id="recent-languages" role="navigation" aria-label="Recent languages">
+      <h4>Recent Languages:</h4>
+      <div class="recent-lang-list" id="recent-lang-list"></div>
+    </div>
+
+    <div class="card input-wrapper">
+      <div class="from">
+        <span class="heading">From :</span>
+        <div class="dropdown-container" id="input-language">
+          <div class="dropdown-toggle" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+            <ion-icon name="globe-outline"></ion-icon>
+            <span class="selected" data-value="auto">Auto Detect</span>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </div>
+          <ul class="dropdown-menu" role="listbox">
+            <input type="text" class="lang-search" placeholder="Search languages..." aria-label="Search languages" />
+          </ul>
+        </div>
+      </div>
+      <div class="text-area">
+        <textarea id="input-text" cols="30" rows="10" placeholder="Enter your text here"
+          aria-label="Input text to translate"></textarea>
+        <div class="text-stats">
+          <span class="stat-item"><ion-icon name="text-outline"></ion-icon> <span id="char-count">0</span> chars</span>
+          <span class="stat-item"><ion-icon name="document-text-outline"></ion-icon> <span id="word-count">0</span>
+            words</span>
+          <span class="stat-item"><ion-icon name="list-outline"></ion-icon> <span id="sentence-count">0</span>
+            sentences</span>
+        </div>
+        <button id="voice-input-btn" class="voice-btn" title="Voice Input" aria-label="Start voice input">
+          <ion-icon name="mic-outline"></ion-icon>
+        </button>
+        <button id="clear-input-btn" class="clear-btn" title="Clear Text" aria-label="Clear input text">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="card-bottom">
+        <p>Or choose your document!</p>
+        <label for="upload-document">
+          <span id="upload-title">Choose File</span>
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+          <input type="file" id="upload-document" accept=".txt,.pdf,.docx,.doc" hidden aria-label="Upload document" />
+        </label>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="swap-position" title="Swap Languages (Ctrl+S)" role="button" tabindex="0" aria-label="Swap languages">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+      </div>
+    </div>
+
+    <div class="card output-wrapper">
+      <div class="to">
+        <span class="heading">To :</span>
+        <div class="dropdown-container" id="output-language">
+          <div class="dropdown-toggle" role="button" aria-haspopup="listbox" aria-expanded="false" tabindex="0">
+            <ion-icon name="globe-outline"></ion-icon>
+            <span class="selected" data-value="en">English</span>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </div>
+          <ul class="dropdown-menu" role="listbox">
+            <input type="text" class="lang-search" placeholder="Search languages..." aria-label="Search languages" />
+          </ul>
+        </div>
+      </div>
+      <div class="text-area output-area">
+        <textarea id="output-text" cols="30" rows="10" placeholder="Translated text will appear here" disabled
+          aria-label="Translated output text"></textarea>
+        <div class="loading-spinner" id="loading-spinner" role="status" aria-live="polite">
+          <div class="spinner"></div>
+          <span>Translating...</span>
+        </div>
+        <!-- Translation Quality & Confidence -->
+        <div class="translation-info" id="translation-info" style="display: none;">
+          <div class="info-item">
+            <span class="info-label">Confidence:</span>
+            <div class="confidence-bar">
+              <div class="confidence-fill" id="confidence-fill"></div>
+            </div>
+            <span class="confidence-text" id="confidence-text">0%</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Quality:</span>
+            <div class="quality-stars" id="quality-stars"></div>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Context:</span>
+            <select id="context-selector" class="context-selector">
+              <option value="general">General</option>
+              <option value="formal">Formal</option>
+              <option value="informal">Informal</option>
+              <option value="technical">Technical</option>
+              <option value="business">Business</option>
+              <option value="casual">Casual</option>
+            </select>
+          </div>
+        </div>
+        <!-- Pronunciation Guide -->
+        <div class="pronunciation-guide" id="pronunciation-guide" style="display: none;">
+          <span class="pronunciation-label">Pronunciation:</span>
+          <span class="pronunciation-text" id="pronunciation-text"></span>
+        </div>
+        <div class="output-actions">
+          <button id="copy-btn" class="action-btn" title="Copy (Ctrl+C)" aria-label="Copy translation">
+            <ion-icon name="copy-outline"></ion-icon>
+          </button>
+          <button id="voice-output-btn" class="action-btn" title="Listen" aria-label="Read translation aloud">
+            <ion-icon name="volume-high-outline"></ion-icon>
+          </button>
+          <button id="alternatives-btn" class="action-btn" title="Alternatives" aria-label="Show alternatives">
+            <ion-icon name="list-outline"></ion-icon>
+          </button>
+          <button id="favorite-btn" class="action-btn" title="Add to Favorites" aria-label="Add to favorites">
+            <ion-icon name="heart-outline"></ion-icon>
+          </button>
+          <button id="share-btn" class="action-btn" title="Share" aria-label="Share translation">
+            <ion-icon name="share-social-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+      <div class="card-bottom">
+        <p>Download as a document!</p>
+        <div class="download-options">
+          <button id="download-btn" aria-label="Download translation">
+            <span>Download</span>
+            <ion-icon name="cloud-download-outline"></ion-icon>
+          </button>
+          <select id="export-format" class="export-format">
+            <option value="txt">TXT</option>
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+            <option value="xlsx">Excel</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History & Favorites Panel -->
+  <div class="side-panel" id="history-panel" role="complementary" aria-label="History and favorites panel">
+    <div class="panel-header">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="history" aria-label="History tab">
+          <ion-icon name="time-outline"></ion-icon> History
+        </button>
+        <button class="tab-btn" data-tab="favorites" aria-label="Favorites tab">
+          <ion-icon name="heart-outline"></ion-icon> Favorites
+        </button>
+      </div>
+      <button class="panel-close" aria-label="Close panel">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="panel-content">
+      <!-- History Tab -->
+      <div class="tab-content active" id="history-tab">
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input type="text" id="history-search" placeholder="Search history..." aria-label="Search history" />
+        </div>
+        <div class="filter-options">
+          <select id="history-filter" aria-label="Filter history by language">
+            <option value="all">All Languages</option>
+          </select>
+          <select id="history-sort" aria-label="Sort history">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+        <ul id="history-list" class="history-list" role="list"></ul>
+        <button id="clear-history" class="clear-btn-panel" aria-label="Clear all history">
+          <ion-icon name="trash-outline"></ion-icon> Clear All
+        </button>
+      </div>
+
+      <!-- Favorites Tab -->
+      <div class="tab-content" id="favorites-tab">
+        <ul id="favorites-list" class="history-list" role="list"></ul>
+        <div class="empty-state" id="favorites-empty">
+          <ion-icon name="heart-outline"></ion-icon>
+          <p>No favorites yet</p>
+          <small>Click the heart icon to save translations</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Translation Memory Modal -->
+  <div id="memory-modal" class="modal" role="dialog" aria-labelledby="memory-title" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="memory-title">Translation Memory & Glossary</h2>
+        <button class="modal-close" aria-label="Close memory modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="memory-tabs">
+          <button class="memory-tab-btn active" data-tab="memory">Memory</button>
+          <button class="memory-tab-btn" data-tab="glossary">Glossary</button>
+        </div>
+        <div class="memory-tab-content active" id="memory-content">
+          <div class="search-box">
+            <ion-icon name="search-outline"></ion-icon>
+            <input type="text" id="memory-search" placeholder="Search memory..." />
+          </div>
+          <ul id="memory-list" class="memory-list"></ul>
+        </div>
+        <div class="memory-tab-content" id="glossary-content">
+          <div class="glossary-add">
+            <input type="text" id="glossary-term" placeholder="Term" />
+            <input type="text" id="glossary-translation" placeholder="Translation" />
+            <button id="add-glossary-btn">Add</button>
+          </div>
+          <ul id="glossary-list" class="memory-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch Translation Modal -->
+  <div id="batch-modal" class="modal" role="dialog" aria-labelledby="batch-title" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="batch-title">Batch Translation</h2>
+        <button class="modal-close" aria-label="Close batch modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="batch-input" placeholder="Enter multiple texts (one per line)..." rows="10"></textarea>
+        <div class="batch-controls">
+          <button id="start-batch-btn" class="primary-btn">Start Translation</button>
+          <button id="export-batch-btn" class="secondary-btn">Export Results</button>
+        </div>
+        <div id="batch-progress" class="batch-progress">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <span class="progress-text">0 / 0</span>
+        </div>
+        <ul id="batch-results" class="batch-results"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alternatives Modal -->
+  <div id="alternatives-modal" class="modal" role="dialog" aria-labelledby="alternatives-title" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="alternatives-title">Alternative Translations</h2>
+        <button class="modal-close" aria-label="Close alternatives modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="alternatives-list" class="alternatives-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Modal -->
+  <div id="comparison-modal" class="modal" role="dialog" aria-labelledby="comparison-title" aria-hidden="true">
+    <div class="modal-content comparison-modal">
+      <div class="modal-header">
+        <h2 id="comparison-title">Translation Comparison</h2>
+        <button class="modal-close" aria-label="Close comparison modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="comparison-grid" id="comparison-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <script src="script/languages.js" type="module"></script>
+  <script src="script/script.js" type="module"></script>
+  <script src="script/advanced-features.js" type="module"></script>
+</body>
+
+</html>

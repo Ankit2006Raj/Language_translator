@@ -1,0 +1,58 @@
+{
+    "name": "AI Language Translator Pro",
+    "short_name": "Translator",
+    "description": "Professional AI-powered language translator with 100+ languages, voice input/output, document translation, and offline support",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#356aff",
+    "theme_color": "#356aff",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "images/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "images/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "productivity",
+        "utilities",
+        "education"
+    ],
+    "screenshots": [
+        {
+            "src": "images/screenshot1.png",
+            "sizes": "1280x720",
+            "type": "image/png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "New Translation",
+            "short_name": "Translate",
+            "description": "Start a new translation",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "images/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
+    "share_target": {
+        "action": "/",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text"
+        }
+    }
+}
