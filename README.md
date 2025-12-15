@@ -1,8 +1,11 @@
-# AI Language Translator Pro
+# Language Translator
+<img width="1176" height="613" alt="image" src="https://github.com/user-attachments/assets/a39a73d4-c71c-4fdc-a5b5-39c1debb3628" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/5c55d866-7705-4402-b057-cca9f0ed5e9d" />
 
 A professional AI-powered language translator web application with 100+ languages, voice input/output, document translation, and offline support.
 
 ## Features
+<img width="1048" height="611" alt="image" src="https://github.com/user-attachments/assets/fe9a834f-4f1e-4db4-b2dc-683cee7d02b9" />
 
 ### Core Translation
 - **100+ Languages** - Support for over 100 languages with auto-detection
